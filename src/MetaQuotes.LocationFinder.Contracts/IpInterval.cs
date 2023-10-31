@@ -1,4 +1,6 @@
-﻿namespace MetaQuotes.LocationFinder.Contracts
+﻿using System.Net;
+
+namespace MetaQuotes.LocationFinder.Contracts
 {
     /// <summary>
     /// Интервал IP-адресов.
@@ -8,12 +10,12 @@
         /// <summary>
         /// Начало диапазона IP адресов.
         /// </summary>
-        public uint IpFrom { get; }
+        public IPAddress IpFrom { get; }
 
         /// <summary>
         /// Конец диапазона IP адресов.
         /// </summary>
-        public uint IpTo { get; }
+        public IPAddress IpTo { get; }
 
         /// <summary>
         /// Индекс записи о местоположении.
@@ -31,8 +33,8 @@
             uint ipTo, 
             uint locationIndex)
         {
-            IpFrom = ipFrom;
-            IpTo = ipTo;
+            IpFrom = new IPAddress(ipFrom);
+            IpTo = new IPAddress(ipTo);
             LocationIndex = locationIndex;
         }
     }

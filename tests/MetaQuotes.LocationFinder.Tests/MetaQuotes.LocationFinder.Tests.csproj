@@ -22,4 +22,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MetaQuotes.LocationFinder.Core\MetaQuotes.LocationFinder.Core.csproj" />
+  </ItemGroup>
+
 </Project>

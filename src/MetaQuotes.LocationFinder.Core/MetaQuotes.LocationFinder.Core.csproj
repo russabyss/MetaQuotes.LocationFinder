@@ -10,4 +10,8 @@
     <ProjectReference Include="..\MetaQuotes.LocationFinder.Contracts\MetaQuotes.LocationFinder.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="MetaQuotes.LocationFinder.Tests" />
+  </ItemGroup>
+
 </Project>
