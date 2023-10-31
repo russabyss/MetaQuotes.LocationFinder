@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaQuotes.LocationFinder.Benchmarks", "tests\MetaQuotes.LocationFinder.Benchmarks\MetaQuotes.LocationFinder.Benchmarks.csproj", "{ACFFCE26-1489-442A-8C39-059A65BA182B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{18F90390-86FA-4E4B-811A-64B1341C6645}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18F90390-86FA-4E4B-811A-64B1341C6645}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18F90390-86FA-4E4B-811A-64B1341C6645}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACFFCE26-1489-442A-8C39-059A65BA182B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACFFCE26-1489-442A-8C39-059A65BA182B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACFFCE26-1489-442A-8C39-059A65BA182B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACFFCE26-1489-442A-8C39-059A65BA182B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +61,7 @@ Global
 		{BD648D3C-0478-404F-95E7-3FE48E02647D} = {8D00B233-D672-442A-BB59-8E269D4CFF4C}
 		{5E8DDFF1-A5FD-4490-B9A3-0699B2365E63} = {996D222F-426B-4E46-A34A-2E2CF7A6AF0C}
 		{18F90390-86FA-4E4B-811A-64B1341C6645} = {B41412DE-9493-441A-8D7B-EA54FDD50860}
+		{ACFFCE26-1489-442A-8C39-059A65BA182B} = {996D222F-426B-4E46-A34A-2E2CF7A6AF0C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {21C71D8F-2FE8-404F-A181-BBBC2910FB79}
