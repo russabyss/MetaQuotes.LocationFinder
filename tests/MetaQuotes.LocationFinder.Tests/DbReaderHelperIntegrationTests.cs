@@ -41,6 +41,25 @@ namespace MetaQuotes.LocationFinder.Tests
             // Assert
             Assert.Equal(header.Records, intervals.Length);
             // TODO: проверить, что IpFrom <= IpTo во всех элементах.
+        } 
+        
+        [Fact]
+        public void GetLocations_ReadFileFromDisk_ReturnsExpected()
+        {
+            // Arrange
+            var buffer = File.ReadAllBytes("Data/geobase.dat");
+            var header = DbReaderHelper.GetHeader(buffer);
+
+            // Act
+            var locations = DbReaderHelper.GetLocations(
+                buffer
+                    .AsSpan()
+                    .Slice((int)header.OffsetLocations, header.Records * DbConstants.LocationLength), // Для упрощения - делаем прямой каст uint -> int, т.к. в текущем файле точно все будет ок.
+                header.Records);
+
+            // Assert
+            Assert.Equal(header.Records, locations.Length);
+            // TODO: проверить, что все city начинаются с cit, etc.
         }
     }
 }

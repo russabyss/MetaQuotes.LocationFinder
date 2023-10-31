@@ -33,7 +33,7 @@
         /// <summary>
         /// Размер float поля в байтах.
         /// </summary>
-        public const int FloatLength = 8;
+        public const int FloatLength = 4;
 
         /// <summary>
         /// Размер одной записи с интервалом ip-адресов в байтах.

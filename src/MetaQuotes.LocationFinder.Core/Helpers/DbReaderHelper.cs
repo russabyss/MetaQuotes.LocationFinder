@@ -24,17 +24,22 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
             }
 
             var fileBuffer = File.ReadAllBytes(filePath);
+            
             var header = GetHeader(fileBuffer);
+            
             var ipIntervals = GetIpIntervals(
                 fileBuffer
                     .AsSpan()
                     .Slice((int)header.OffsetRanges, header.Records * DbConstants.IpIntervalLength), // Для упрощения - делаем прямой каст uint -> int, т.к. в текущем файле точно все будет ок.
                 header.Records);
-
-            throw new NotImplementedException();
-            //var locations = GetLocations(fileBuffer, header.Records);
-
-            //return new DataBase(header, ipIntervals, locations);
+            
+            var locations = GetLocations(
+                fileBuffer
+                    .AsSpan()
+                    .Slice((int)header.OffsetLocations, header.Records * DbConstants.LocationLength), // Для упрощения - делаем прямой каст uint -> int, т.к. в текущем файле точно все будет ок.
+                header.Records);
+          
+            return new DataBase(header, ipIntervals, locations);
         }
 
         /// <summary>
@@ -89,6 +94,58 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
             }
 
             return ipIntervals;
+        }
+
+
+        /// <summary>
+        /// Распарсить все локации.
+        /// </summary>
+        /// <param name="buffer">Исходный массив байтов.</param>
+        /// <param name="recordsCount">Количество записей.</param>
+        /// <returns>Массив локаций. См. <see cref="Location"/>.</returns>
+        internal static Location[] GetLocations(ReadOnlySpan<byte> buffer, int recordsCount)
+        {
+            var locations = new Location[recordsCount];
+            var currentLocationIndex = 0;
+            
+            for (var i = 0; i < buffer.Length; i += DbConstants.LocationLength)
+            {
+                var locationsSpan = buffer.Slice(i, DbConstants.LocationLength);
+                var location = GetLocation(locationsSpan);
+
+                locations[currentLocationIndex] = location;
+                currentLocationIndex++;
+            }
+
+            return locations;
+        }
+
+        /// <summary>
+        /// Распарсить локацию.
+        /// </summary>
+        /// <param name="locationsSpan">Исходный массив байтов.</param>
+        /// <returns>Локация. См. <see cref="Location"/>.</returns>
+        internal static Location GetLocation(ReadOnlySpan<byte> buffer)
+        {
+            var currentPosition = 0;
+            var country = Encoding.UTF8.GetString(buffer.Slice(currentPosition, DbConstants.LocationCountryLength).TrimEnd(EscapeEmptySymbolCode));
+            var region = Encoding.UTF8.GetString(buffer.Slice(currentPosition += DbConstants.LocationCountryLength, DbConstants.LocationRegionLength).TrimEnd(EscapeEmptySymbolCode));
+            var postal = Encoding.UTF8.GetString(buffer.Slice(currentPosition += DbConstants.LocationRegionLength, DbConstants.LocationPostalLength).TrimEnd(EscapeEmptySymbolCode));
+            var city = Encoding.UTF8.GetString(buffer.Slice(currentPosition += DbConstants.LocationPostalLength, DbConstants.LocationCityLength).TrimEnd(EscapeEmptySymbolCode));
+            var org = Encoding.UTF8.GetString(buffer.Slice(currentPosition += DbConstants.LocationCityLength, DbConstants.LocationOrganizationLength).TrimEnd(EscapeEmptySymbolCode));
+            var latitude = BitConverter.ToSingle(buffer.Slice(currentPosition += DbConstants.LocationOrganizationLength, DbConstants.FloatLength));
+            var longitude = BitConverter.ToSingle(buffer.Slice(currentPosition += DbConstants.FloatLength, DbConstants.FloatLength));
+
+            return new Location
+            (
+                country,
+                region,
+                postal,
+                city,
+                org,
+                latitude,
+                longitude
+            );
         }
     }
 }
