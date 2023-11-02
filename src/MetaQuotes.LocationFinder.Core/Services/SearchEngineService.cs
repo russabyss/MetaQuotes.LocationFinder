@@ -1,4 +1,5 @@
 ﻿using MetaQuotes.LocationFinder.Contracts;
+using MetaQuotes.LocationFinder.Core.Exceptions;
 using MetaQuotes.LocationFinder.Core.Extensions;
 using MetaQuotes.LocationFinder.Core.Interfaces;
 using MetaQuotes.LocationFinder.Core.Models;
@@ -13,24 +14,63 @@ namespace MetaQuotes.LocationFinder.Core.Services;
 /// </summary>
 public class SearchEngineService : ISearchEngine
 {
-    private readonly SearchIndex _searchIndex;
+    private static readonly object _syncObject = new object(); 
+    private readonly SearchIndexFactory _searchIndexFactory;
+    private SearchIndex _searchIndex;
+    private bool _isInitialized = false;
+
+    /// <summary>
+    /// TODO: Можно напихать логирования при необходимости.
+    /// </summary>
     private readonly ILogger<SearchEngineService> _logger;
 
     /// <summary>
     /// Создать.
     /// </summary>
+    /// <param name="searchIndexFactory">Фабрика для поискового индекса.</param>
     /// <param name="logger">Логер.</param>
     public SearchEngineService(
-        SearchIndex searchIndex,
+        SearchIndexFactory searchIndexFactory,
         ILogger<SearchEngineService> logger)
     {
-        _searchIndex = searchIndex ?? throw new ArgumentNullException(nameof(searchIndex));
+        _searchIndexFactory = searchIndexFactory ?? throw new ArgumentNullException(nameof(searchIndexFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+    
+    /// <inheritdoc />
+    public void Initialize()
+    {
+        // double-check-lock-pattern
+        if(!_isInitialized)
+        {
+            lock(_syncObject)
+            {
+                if(!_isInitialized)
+                {
+                    _searchIndex = _searchIndexFactory.CreateIndex();
+                    _isInitialized = true;
+                }
+            }
+        }
+        else
+        {
+            throw new DoubleInitializationException("Попытка осуществления повторной инициализации.");
+        }
     }
 
     /// <inheritdoc />
     public Location FindLocationByIp(string ip)
     {
+        if (string.IsNullOrEmpty(ip))
+        {
+            throw new ArgumentNullException(nameof(ip));
+        }
+
+        if (!_isInitialized)
+        {
+            throw new NotInitializedException("Осуществлен вызов логики до завершения инициализации.");
+        }
+
         var ipAddress = IPAddress.Parse(ip);
         var ipAddressValue = BitConverter.ToUInt32(ipAddress.GetAddressBytes());
         var indexOfInterval = FindIpIndex(ipAddressValue);
@@ -45,6 +85,11 @@ public class SearchEngineService : ISearchEngine
         if(string.IsNullOrEmpty(city))
         {
             throw new ArgumentNullException(nameof(city));
+        }
+
+        if (!_isInitialized)
+        {
+            throw new NotInitializedException("Осуществлен вызов логики до завершения инициализации.");
         }
 
         var cityBytes = Encoding.UTF8.GetBytes(city)
@@ -111,6 +156,7 @@ public class SearchEngineService : ISearchEngine
         // Бинарным поиском мы попали в рандомную точку интервала, состоящего из одинаковых названий городов.
         // Слева и справа от этой точки могут находиться другие подходящие элементы.
         // Необходимо пройтись налево и направо и дозаполнить список идентификаторов подходящими значениями.
+        // TODO: Эффективнее будет сделать это за один проход. Если останется время - переделаю.
         var foundIndexDown = initialIndex - 1;
         var currentElementDown = _searchIndex.CitySearchIndex.Cities[foundIndexDown].Span.TrimEscapeBytesEnd();
 
@@ -175,6 +221,11 @@ public class SearchEngineService : ISearchEngine
             initialIndex = (from + to) / 2;
             currentElement = _searchIndex.IpSearchIndex.IpsFrom[initialIndex];
         }
+
+        // Мы нашли два индекса - один слева, другой справа.
+        // Оба эти индекса представляют начальные значения двух разных интервалов.
+        // Искомый IP может относиться как к первому, так и ко второму интервалу.
+        // Проверяем вхождения в интервалы ниже.
 
         var ipFromValue = _searchIndex.IpSearchIndex.IpsFrom[from];
         var ipToValue = _searchIndex.IpSearchIndex.IpsTo[from];

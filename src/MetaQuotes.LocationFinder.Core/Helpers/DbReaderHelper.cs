@@ -15,6 +15,11 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
         /// <exception cref="FileNotFoundException">Проверяет наличие файла с базой данных по указанному пути.</exception>
         public static byte[] ReadFile(string filePath)
         {
+            if(!Path.IsPathRooted(filePath))
+            {
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
+            }
+
             if (!File.Exists(filePath))
             {
                 throw new FileNotFoundException($"DB file not found in '{filePath}'.");

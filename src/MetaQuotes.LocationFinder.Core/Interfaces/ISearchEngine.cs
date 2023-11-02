@@ -8,6 +8,11 @@ namespace MetaQuotes.LocationFinder.Core.Interfaces
     public interface ISearchEngine
     {
         /// <summary>
+        /// Инициализировать необходимые зависимости.
+        /// </summary>
+        void Initialize();
+
+        /// <summary>
         /// Найти локацию по IP-адресу.
         /// </summary>
         /// <param name="ip">IP-адрес.</param>

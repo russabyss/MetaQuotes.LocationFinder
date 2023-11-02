@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace MetaQuotes.LocationFinder.WebApi.Controllers
 {
     [ApiController]
-    [Route("ip")]
-    public class IpController : ControllerBase
+    [Route("city")]
+    public class CityController : ControllerBase
     {
         private readonly ISearchEngine _searchEngine;
         private readonly ILogger<IpController> _logger;
@@ -17,7 +17,7 @@ namespace MetaQuotes.LocationFinder.WebApi.Controllers
         /// <param name="searchEngine">Поисковый движок.</param>
         /// <param name="logger">Логер.</param>
         /// <exception cref="ArgumentNullException">Проверка зависимостей на существование.</exception>
-        public IpController(
+        public CityController(
             ISearchEngine searchEngine,
             ILogger<IpController> logger)
         {
@@ -26,14 +26,14 @@ namespace MetaQuotes.LocationFinder.WebApi.Controllers
         }
 
         /// <summary>
-        /// Получить локацию по IP.
+        /// Получить локацию по названию города.
         /// </summary>
-        /// <param name="ip">IP-адрес.</param>
-        /// <returns>Локация. См. <see cref="Location"/>.</returns>
-        [HttpGet(Name = "location")]
-        public Location Get([FromQuery] string ip)
+        /// <param name="city">Название города.</param>
+        /// <returns>Локации. См. <see cref="Location"/>.</returns>
+        [HttpGet(Name = "locations")]
+        public IEnumerable<Location> Get([FromQuery] string city)
         {
-            return _searchEngine.FindLocationByIp(ip);
+            return _searchEngine.FindLocationsByCity(city);
         }
     }
 }
