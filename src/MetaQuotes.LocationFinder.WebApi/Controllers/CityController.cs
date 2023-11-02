@@ -30,7 +30,7 @@ namespace MetaQuotes.LocationFinder.WebApi.Controllers
         /// </summary>
         /// <param name="city">Название города.</param>
         /// <returns>Локации. См. <see cref="Location"/>.</returns>
-        [HttpGet(Name = "locations")]
+        [HttpGet, Route("locations")]
         public IEnumerable<Location> Get([FromQuery] string city)
         {
             return _searchEngine.FindLocationsByCity(city);

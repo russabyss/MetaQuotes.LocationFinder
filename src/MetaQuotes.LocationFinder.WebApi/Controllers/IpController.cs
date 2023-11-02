@@ -30,7 +30,7 @@ namespace MetaQuotes.LocationFinder.WebApi.Controllers
         /// </summary>
         /// <param name="ip">IP-адрес.</param>
         /// <returns>Локация. См. <see cref="Location"/>.</returns>
-        [HttpGet(Name = "location")]
+        [HttpGet, Route("location")]
         public Location Get([FromQuery] string ip)
         {
             return _searchEngine.FindLocationByIp(ip);

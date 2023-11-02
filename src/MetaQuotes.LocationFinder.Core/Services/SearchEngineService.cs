@@ -4,6 +4,7 @@ using MetaQuotes.LocationFinder.Core.Extensions;
 using MetaQuotes.LocationFinder.Core.Interfaces;
 using MetaQuotes.LocationFinder.Core.Models;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Text;
 
@@ -16,6 +17,8 @@ public class SearchEngineService : ISearchEngine
 {
     private static readonly object _syncObject = new object(); 
     private readonly SearchIndexFactory _searchIndexFactory;
+    private readonly ConcurrentDictionary<string, List<Location>> _cityCache;
+    private readonly ConcurrentDictionary<string, Location> _ipCache;
     private SearchIndex _searchIndex;
     private bool _isInitialized = false;
 
@@ -35,6 +38,8 @@ public class SearchEngineService : ISearchEngine
     {
         _searchIndexFactory = searchIndexFactory ?? throw new ArgumentNullException(nameof(searchIndexFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _cityCache = new ConcurrentDictionary<string, List<Location>>(StringComparer.Ordinal);
+        _ipCache = new ConcurrentDictionary<string, Location>(StringComparer.Ordinal);
     }
     
     /// <inheritdoc />
@@ -71,12 +76,19 @@ public class SearchEngineService : ISearchEngine
             throw new NotInitializedException("Осуществлен вызов логики до завершения инициализации.");
         }
 
-        var ipAddress = IPAddress.Parse(ip);
-        var ipAddressValue = BitConverter.ToUInt32(ipAddress.GetAddressBytes());
-        var indexOfInterval = FindIpIndex(ipAddressValue);
-        var location = _searchIndex.GetLocationByArrayIndex(indexOfInterval);
+        // Используем кэширование в потокобезопасном словаре.
+        // Он производительнее, чем MemoryCache, т.к. работает с типизированными
+        // ключами. Экономим на boxing/unboxing.
+        return _ipCache.GetOrAdd(ip, c =>
+        {
 
-        return location;
+            var ipAddress = IPAddress.Parse(ip);
+            var ipAddressValue = BitConverter.ToUInt32(ipAddress.GetAddressBytes());
+            var indexOfInterval = FindIpIndex(ipAddressValue);
+            var location = _searchIndex.GetLocationByArrayIndex(indexOfInterval);
+
+            return location;
+        });
     }
 
     /// <inheritdoc />
@@ -92,20 +104,26 @@ public class SearchEngineService : ISearchEngine
             throw new NotInitializedException("Осуществлен вызов логики до завершения инициализации.");
         }
 
-        var cityBytes = Encoding.UTF8.GetBytes(city)
-            .AsSpan()
-            .TrimEnd(DbConstants.SpaceSymbolCode);
-        
-        var locationsAddresses = FindLocationsAddresses(cityBytes);
-        var locations = new List<Location>(locationsAddresses.Count);
-
-        foreach (var index in locationsAddresses)
+        // Используем кэширование в потокобезопасном словаре.
+        // Он производительнее, чем MemoryCache, т.к. работает с типизированными
+        // ключами. Экономим на boxing/unboxing.
+        return _cityCache.GetOrAdd(city, c =>
         {
-            var location = _searchIndex.GetLocationByAddressInFile(index);
-            locations.Add(location);
-        }
+            var cityBytes = Encoding.UTF8.GetBytes(city)
+                .AsSpan()
+                .TrimEnd(DbConstants.SpaceSymbolCode);
 
-        return locations;
+            var locationsAddresses = FindLocationsAddresses(cityBytes);
+            var locations = new List<Location>(locationsAddresses.Count);
+
+            foreach (var index in locationsAddresses)
+            {
+                var location = _searchIndex.GetLocationByAddressInFile(index);
+                locations.Add(location);
+            }
+
+            return locations;
+        });
     }
 
     /// <summary>
