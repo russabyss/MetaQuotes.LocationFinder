@@ -83,7 +83,7 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
             var ipIntervals = new IpInterval[recordsCount];
             var currentIntervalIndex = 0;
             
-            for (var i = 0; i < buffer.Length; i += 12)
+            for (var i = 0; i < buffer.Length; i += DbConstants.IpIntervalLength)
             {
                 var startIndex = i;
                 var ipFrom = BitConverter.ToUInt32(buffer.Slice(i, DbConstants.UintLength));
@@ -163,7 +163,7 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
         {
             var ipIndex = new IpSearchIndex(recordsCount);
             var currentIndex = 0;
-            for (var i = 0; i < intervalsBuffer.Length; i += 12)
+            for (var i = 0; i < intervalsBuffer.Length; i += DbConstants.IpIntervalLength)
             {
                 var currentPosition = i;
                 var ipFrom = BitConverter.ToUInt32(intervalsBuffer.Slice(currentPosition, DbConstants.UintLength));
@@ -176,6 +176,38 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
             }
 
             return ipIndex;
+        }
+
+        /// <summary>
+        /// Распарсить исходный набор байтов в поисковый индекс
+        /// по городам.
+        /// Считывает адреса локаций из списка упорядоченных по названию городов адресов,
+        /// по найденным адресам считывает наборы байтов, соответствующие названиям 
+        /// городов и записывает их в установленном порядке в поисковый индекс.
+        /// </summary>
+        /// <param name="locationsbuffer">Исходный набор байтов для локаций.</param>
+        /// <param name="citiesListBuffer">Исходный набор байтов для упорядоченного списка адресов локаций.</param>
+        /// <param name="recordCount">Количество записей.</param>
+        /// <returns></returns>
+        internal static CitySearchIndex GetCitySearchIndex(
+            ReadOnlyMemory<byte> locationsbuffer, 
+            ReadOnlySpan<byte> citiesListBuffer, 
+            int recordCount)
+        {
+            var citySearchIndex = new CitySearchIndex(recordCount);
+            var locationToCityOffset = DbConstants.LocationCountryLength + DbConstants.LocationRegionLength + DbConstants.LocationPostalLength;
+
+            var currentIndex = 0;
+            for (var i = 0; i < citiesListBuffer.Length; i += DbConstants.LocationsListItem)
+            {
+                var locationAddress = BitConverter.ToInt32(citiesListBuffer.Slice(i, DbConstants.IntLength));
+                var cityName = locationsbuffer.Slice(locationAddress + locationToCityOffset, DbConstants.LocationCityLength);
+
+                citySearchIndex.Add(cityName, currentIndex);
+                currentIndex++;
+            }
+
+            return citySearchIndex;
         }
     }
 }

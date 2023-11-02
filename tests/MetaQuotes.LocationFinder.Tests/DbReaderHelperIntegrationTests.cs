@@ -81,6 +81,26 @@ namespace MetaQuotes.LocationFinder.Tests
             Assert.Equal(header.Records, ipSearchIndex.IpsTo.Length);
             Assert.Equal(header.Records, ipSearchIndex.LocationIndexes.Length);
             // TODO: проверить, что все IpTo <= IpFrom на одинаковых индексах массива.
+        }     
+        
+        [Fact]
+        public void GetCitySearchIndex_ReadFileFromDisk_ReturnsExpected()
+        {
+            // Arrange
+            var buffer = File.ReadAllBytes("Data/geobase.dat");
+            var header = DbReaderHelper.GetHeader(buffer);
+            var locations = buffer.AsMemory((int)header.OffsetLocations, DbConstants.LocationLength * header.Records);
+            var citiesList = buffer.AsSpan((int)header.OffsetCities, header.Records * DbConstants.LocationsListItem);
+
+            // Act
+            var citySearchIndex = DbReaderHelper.GetCitySearchIndex(
+                locations,
+                citiesList,
+                header.Records);
+
+            // Assert
+            Assert.Equal(header.Records, citySearchIndex.Cities.Length);
+            // TODO: проверить, массив Cities - упорядочен.
         }
     }
 }
