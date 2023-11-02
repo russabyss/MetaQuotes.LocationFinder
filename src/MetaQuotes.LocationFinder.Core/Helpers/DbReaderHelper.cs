@@ -1,16 +1,12 @@
 ﻿using MetaQuotes.LocationFinder.Contracts;
 using MetaQuotes.LocationFinder.Core.Extensions;
 using MetaQuotes.LocationFinder.Core.Models;
-using System;
 using System.Text;
 
 namespace MetaQuotes.LocationFinder.Core.Helpers
 {
     public static class DbReaderHelper
     {
-        private const byte EscapeEmptySymbolCode = 0;
-        private const byte EscapeSpaceSymbolCode = 23;
-
         /// <summary>
         /// Прочитать файл с диска.
         /// </summary>
@@ -100,7 +96,7 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
             var currentPosition = 0;
             var version = BitConverter.ToInt32(buffer.Slice(currentPosition, DbConstants.IntLength));
             var name = Encoding.UTF8.GetString(buffer.Slice(currentPosition += DbConstants.IntLength, DbConstants.HeaderNameLength)
-                .TrimEnd(EscapeEmptySymbolCode));
+                .TrimEnd(DbConstants.EmptySymbolCode));
             var timestamp = BitConverter.ToUInt64(buffer.Slice(currentPosition += DbConstants.HeaderNameLength, DbConstants.UlongLength));
             var records = BitConverter.ToInt32(buffer.Slice(currentPosition += DbConstants.UlongLength, DbConstants.IntLength));
             var offsetRanges = BitConverter.ToUInt32(buffer.Slice(currentPosition += DbConstants.IntLength, DbConstants.UintLength));
@@ -176,13 +172,25 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
         internal static Location GetLocation(ReadOnlySpan<byte> buffer)
         {
             var currentPosition = 0;
-            var country = Encoding.UTF8.GetString(buffer.Slice(currentPosition, DbConstants.LocationCountryLength).TrimEnd(EscapeEmptySymbolCode));
-            var region = Encoding.UTF8.GetString(buffer.Slice(currentPosition += DbConstants.LocationCountryLength, DbConstants.LocationRegionLength).TrimEnd(EscapeEmptySymbolCode));
-            var postal = Encoding.UTF8.GetString(buffer.Slice(currentPosition += DbConstants.LocationRegionLength, DbConstants.LocationPostalLength).TrimEnd(EscapeEmptySymbolCode));
-            var city = Encoding.UTF8.GetString(buffer.Slice(currentPosition += DbConstants.LocationPostalLength, DbConstants.LocationCityLength).TrimEnd(EscapeEmptySymbolCode));
-            var org = Encoding.UTF8.GetString(buffer.Slice(currentPosition += DbConstants.LocationCityLength, DbConstants.LocationOrganizationLength).TrimEnd(EscapeEmptySymbolCode));
-            var latitude = BitConverter.ToSingle(buffer.Slice(currentPosition += DbConstants.LocationOrganizationLength, DbConstants.FloatLength));
-            var longitude = BitConverter.ToSingle(buffer.Slice(currentPosition += DbConstants.FloatLength, DbConstants.FloatLength));
+            var country = Encoding.UTF8.GetString(buffer
+                .Slice(currentPosition, DbConstants.LocationCountryLength)
+                .TrimEnd(DbConstants.EmptySymbolCode));
+            var region = Encoding.UTF8.GetString(buffer
+                .Slice(currentPosition += DbConstants.LocationCountryLength, DbConstants.LocationRegionLength)
+                .TrimEnd(DbConstants.EmptySymbolCode));
+            var postal = Encoding.UTF8.GetString(buffer
+                .Slice(currentPosition += DbConstants.LocationRegionLength, DbConstants.LocationPostalLength)
+                .TrimEnd(DbConstants.EmptySymbolCode));
+            var city = Encoding.UTF8.GetString(buffer
+                .Slice(currentPosition += DbConstants.LocationPostalLength, DbConstants.LocationCityLength)
+                .TrimEnd(DbConstants.EmptySymbolCode));
+            var org = Encoding.UTF8.GetString(buffer
+                .Slice(currentPosition += DbConstants.LocationCityLength, DbConstants.LocationOrganizationLength)
+                .TrimEnd(DbConstants.EmptySymbolCode));
+            var latitude = BitConverter.ToSingle(buffer
+                .Slice(currentPosition += DbConstants.LocationOrganizationLength, DbConstants.FloatLength));
+            var longitude = BitConverter.ToSingle(buffer
+                .Slice(currentPosition += DbConstants.FloatLength, DbConstants.FloatLength));
 
             return new Location
             (
@@ -209,6 +217,7 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
         {
             var ipIndex = new IpSearchIndex(recordsCount);
             var currentIndex = 0;
+
             for (var i = 0; i < intervalsBuffer.Length; i += DbConstants.IpIntervalLength)
             {
                 var currentPosition = i;
@@ -242,14 +251,14 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
         {
             var citySearchIndex = new CitySearchIndex(recordCount);
             var locationToCityOffset = DbConstants.LocationCountryLength + DbConstants.LocationRegionLength + DbConstants.LocationPostalLength;
-
             var currentIndex = 0;
+
             for (var i = 0; i < citiesListBuffer.Length; i += DbConstants.LocationsListItem)
             {
                 var locationAddress = BitConverter.ToInt32(citiesListBuffer.Slice(i, DbConstants.IntLength));
                 var cityName = locationsbuffer.Slice(locationAddress + locationToCityOffset, DbConstants.LocationCityLength);
 
-                citySearchIndex.Add(cityName, currentIndex);
+                citySearchIndex.Add(cityName, locationAddress, currentIndex);
                 currentIndex++;
             }
 

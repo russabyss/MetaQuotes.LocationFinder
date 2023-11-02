@@ -1,6 +1,7 @@
 ﻿using MetaQuotes.LocationFinder.Contracts;
 using MetaQuotes.LocationFinder.Core.Helpers;
 using MetaQuotes.LocationFinder.Core.Models;
+using System;
 
 namespace MetaQuotes.LocationFinder.Core.Extensions
 {
@@ -14,6 +15,16 @@ namespace MetaQuotes.LocationFinder.Core.Extensions
                 DbConstants.LocationLength);
 
             return DbReaderHelper.GetLocation(locationSpan);
+        }
+
+        public static Location GetLocationByAddressInFile(this SearchIndex searchIndex, int addressIndex)
+        {
+            var addressOfLocation = searchIndex.CitySearchIndex.LocationAddresses[addressIndex];
+            var locationSlice = searchIndex.LocationsBytes.Slice(
+                addressOfLocation, 
+                DbConstants.LocationLength);
+
+            return  DbReaderHelper.GetLocation(locationSlice);
         }
     }
 }

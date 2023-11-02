@@ -4,6 +4,7 @@ using MetaQuotes.LocationFinder.Core.Interfaces;
 using MetaQuotes.LocationFinder.Core.Models;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text;
 
 namespace MetaQuotes.LocationFinder.Core.Services;
 
@@ -13,7 +14,6 @@ namespace MetaQuotes.LocationFinder.Core.Services;
 public class SearchEngineService : ISearchEngine
 {
     private readonly SearchIndex _searchIndex;
-
     private readonly ILogger<SearchEngineService> _logger;
 
     /// <summary>
@@ -40,9 +40,100 @@ public class SearchEngineService : ISearchEngine
     }
 
     /// <inheritdoc />
-    public Location[] FindLocationsByCity(string city)
+    public IEnumerable<Location> FindLocationsByCity(string city)
     {
-        throw new NotImplementedException();
+        if(string.IsNullOrEmpty(city))
+        {
+            throw new ArgumentNullException(nameof(city));
+        }
+
+        var cityBytes = Encoding.UTF8.GetBytes(city)
+            .AsSpan()
+            .TrimEnd(DbConstants.SpaceSymbolCode);
+        
+        var locationsAddresses = FindLocationsAddresses(cityBytes);
+        var locations = new List<Location>(locationsAddresses.Count);
+
+        foreach (var index in locationsAddresses)
+        {
+            var location = _searchIndex.GetLocationByAddressInFile(index);
+            locations.Add(location);
+        }
+
+        return locations;
+    }
+
+    /// <summary>
+    /// Бинарный поиск по названию города.
+    /// Названия неуникальны, поэтому возвращает список идентификаторов
+    /// локаций (адресов в исходном файле относительно смещения).
+    /// </summary>
+    /// <param name="cityBytes">Байтовое представление названия города.</param>
+    /// <returns>Список адресов локаций из исходного файла относительно заданного смещения.</returns>
+    private List<int> FindLocationsAddresses(ReadOnlySpan<byte> cityBytes)
+    {
+        var locationIndexes = new List<int>();
+        var from = 0;
+        var to = _searchIndex.CitySearchIndex.Cities.Length - 1;
+        var initialIndex = _searchIndex.CitySearchIndex.Cities.Length / 2;
+        var currentElement = _searchIndex.CitySearchIndex.Cities[initialIndex];
+        var found = false;
+
+        while (from <= to)
+        {
+            var currentElementTrimmed = currentElement.Span.TrimEscapeBytesEnd();
+            
+            var compareResult = cityBytes.SequenceCompareTo(currentElementTrimmed);
+
+            if (compareResult > 0)
+            {
+                from = initialIndex + 1;
+            }
+            else if (compareResult < 0)
+            {
+                to = initialIndex - 1;
+            }
+            else if (compareResult == 0)
+            {
+                found = true;
+                break;
+            }
+
+            initialIndex = (from + to) / 2;
+            currentElement = _searchIndex.CitySearchIndex.Cities[initialIndex];
+        }
+
+        if (!found)
+        {
+            return locationIndexes;
+        }
+
+        // Бинарным поиском мы попали в рандомную точку интервала, состоящего из одинаковых названий городов.
+        // Слева и справа от этой точки могут находиться другие подходящие элементы.
+        // Необходимо пройтись налево и направо и дозаполнить список идентификаторов подходящими значениями.
+        var foundIndexDown = initialIndex - 1;
+        var currentElementDown = _searchIndex.CitySearchIndex.Cities[foundIndexDown].Span.TrimEscapeBytesEnd();
+
+        while (foundIndexDown >= 0 && cityBytes.SequenceEqual(currentElementDown))
+        {
+            locationIndexes.Insert(0, foundIndexDown);         
+            currentElementDown = _searchIndex.CitySearchIndex.Cities[foundIndexDown].Span.TrimEscapeBytesEnd();
+            foundIndexDown--;
+        }
+
+        locationIndexes.Add(initialIndex);
+
+        var foundIndexUp = initialIndex + 1;
+        var currentElementUp = _searchIndex.CitySearchIndex.Cities[foundIndexUp].Span.TrimEscapeBytesEnd();
+
+        while (foundIndexUp < _searchIndex.CitySearchIndex.Cities.Length - 1 && cityBytes.SequenceEqual(currentElementUp))
+        {
+            locationIndexes.Add(foundIndexUp);
+            currentElementUp = _searchIndex.CitySearchIndex.Cities[foundIndexUp].Span.TrimEscapeBytesEnd();
+            foundIndexUp++;
+        }
+
+        return locationIndexes;
     }
 
     /// <summary>

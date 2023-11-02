@@ -12,11 +12,13 @@ namespace MetaQuotes.LocationFinder.Core.Extensions
         /// </summary>
         /// <param name="searchIndex">Поисковый индекс.</param>
         /// <param name="city">Добавляемый город.</param>
+        /// <param name="locationAddress">Адрес локации в исходном файле относительно заданного смещения.</param>
         /// <param name="index">Номер ячейки для записи значения.</param>
         /// <exception cref="IndexOutOfRangeException">Проверка номера ячейки на соответствие интервалу.</exception>
         public static void Add(
             this CitySearchIndex searchIndex, 
             ReadOnlyMemory<byte> city,
+            int locationAddress,
             int index)
         {
             if (index >= searchIndex.Cities.Length || index < 0)
@@ -25,6 +27,7 @@ namespace MetaQuotes.LocationFinder.Core.Extensions
             }
 
             searchIndex.Cities[index] = city;
+            searchIndex.LocationAddresses[index] = locationAddress;
         }
     }
 }

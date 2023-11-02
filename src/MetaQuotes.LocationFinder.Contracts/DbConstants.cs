@@ -6,6 +6,16 @@
     public class DbConstants
     {
         /// <summary>
+        /// Байт символа конца строки \0.
+        /// </summary>
+        public const byte EmptySymbolCode = 0;
+        
+        /// <summary>
+        /// Байт пробельного символа.
+        /// </summary>
+        public const byte SpaceSymbolCode = 32;
+
+        /// <summary>
         /// Размер заголовка в байтах.
         /// </summary>
         public const int HeaderLength = 60;

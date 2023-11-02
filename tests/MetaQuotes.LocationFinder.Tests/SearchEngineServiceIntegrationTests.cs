@@ -5,6 +5,21 @@ using Moq;
 
 namespace MetaQuotes.LocationFinder.Tests
 {
+    public class SearchEngineFixture
+    {
+        public SearchEngineService SearchEngine { get; }
+
+        public SearchEngineFixture()
+        {
+            var stubLogger = Mock.Of<ILogger<SearchEngineService>>();
+            var searchIndex = DbReaderHelper.CreateSearchIndex("Data/geobase.dat");
+
+            SearchEngine = new SearchEngineService(
+                searchIndex,
+                stubLogger);
+        }
+    }
+
     public class SearchEngineServiceIntegrationTests : IClassFixture<SearchEngineFixture>
     {
         private SearchEngineService _searchEngineService;
@@ -200,7 +215,7 @@ namespace MetaQuotes.LocationFinder.Tests
             string region, 
             string postal, 
             float latitude, 
-            float longitude )
+            float longitude)
         {
             // Arrange
 
@@ -227,20 +242,147 @@ namespace MetaQuotes.LocationFinder.Tests
             Assert.Throws<FormatException>(() => { _searchEngineService.FindLocationByIp(ip); });
         }
 
-    }
-
-    public class SearchEngineFixture
-    {
-        public SearchEngineService SearchEngine { get; }
-
-        public SearchEngineFixture()
+        [Theory]
+        [InlineData("cit_Akyx", "org_I Yhaxudoma", "cou_YZU", "reg_A", "pos_2819", -22.7796f, 42.9391f)]
+        [InlineData("cit_Ypafo", "org_Ewafexilo U Akibef", "cou_EJ", "reg_E", "pos_0257", -153.9313f, 88.382f)]
+        [InlineData("cit_Akycogidoly", "org_Omabykygamizewi Uxowyri", "cou_EG", "reg_Akaqiv", "pos_9352", -161.2054f, -152.906f)]
+        [InlineData("cit_Ebi ", "org_E Ififip", "cou_AF", "reg_A", "pos_2020798", 43.8805f, 149.8387f)]
+        [InlineData("cit_Yxotys V", "org_Obis ", "cou_AB", "reg_Ifeb ", "pos_367695", -53.6623f, -51.4215f)]
+        [InlineData("cit_Yhuq", "org_Umacem Ve", "cou_YNO", "reg_Eb", "pos_991751", 63.7658f, 130.1045f)]
+        [InlineData("cit_Uvahag Selyzemele", "org_A A Arewekehosa", "cou_ECI", "reg_Yzyb", "pos_4832929", -61.6677f, 43.4612f)]
+        [InlineData("cit_Ypa Edip Bib", "org_Ep Halepo Ovawiru Ab", "cou_UJO", "reg_Ug", "pos_1257", -124.1657f, 110.0462f)]
+        [InlineData("cit_Asapymymor", "org_Oburojoj ", "cou_ER", "reg_Uzuhy", "pos_696594", -155.2008f, 61.7182f)]
+        [InlineData("cit_Efuc Xi Eg M Mo", "org_Awijak Xe Yjoqujozeg", "cou_YH", "reg_Uvub", "pos_30384", -122.8844f, -13.0348f)]
+        [InlineData("cit_Okojen Pojebesu", "org_Eky Eg Ja Ijiz ", "cou_ED", "reg_O ", "pos_7985", 87.7945f, -8.0378f)]
+        [InlineData("cit_El Tyrolop Tomuh ", "org_E Ul Feheherelif", "cou_AF", "reg_Y", "pos_83496", 71.2344f, 63.0575f)]
+        [InlineData("cit_Ivyqusaz Feb", "org_Al Gy ", "cou_OZ", "reg_Ig", "pos_160847", -143.6173f, 168.308f)]
+        [InlineData("cit_Edibyn Jydu", "org_Iso", "cou_YQE", "reg_Iqyc X", "pos_33711", -141.4344f, -59.8148f)]
+        [InlineData("cit_Ytogekejeteb", "org_Ihofyzypak Ceq", "cou_YKA", "reg_Edolag", "pos_4365", 169.8147f, -27.5106f)]
+        [InlineData("cit_Akibi Uvifyza", "org_Yxa Itehal", "cou_EDE", "reg_Ofara", "pos_20709", 117.016f, 159.0093f)]
+        [InlineData("cit_Yzu Owoj Z", "org_Epavudix T Syvipedefy If", "cou_UJO", "reg_Oc Ci ", "pos_24305", 47.3722f, 133.5105f)]
+        [InlineData("cit_I E O", "org_Ebeqavabe Asemerit Fira", "cou_ERE", "reg_A", "pos_41368", -98.7119f, -70.8205f)]
+        [InlineData("cit_Ypijoryp", "org_Avof Sory Asamytite", "cou_IM", "reg_Iqynu", "pos_5630204", 100.691f, -168.1084f)]
+        [InlineData("cit_Ov Ka", "org_Ywe", "cou_AGU", "reg_Otex", "pos_5897", -172.9812f, -79.4105f)]
+        [InlineData("cit_Yf Pajofaxacyx", "org_Obivylova A Ora", "cou_OPA", "reg_Uty", "pos_1198842", -145.2649f, 62.932f)]
+        [InlineData("cit_Y Inohorejebij V", "org_Yr Jat", "cou_EJ", "reg_Ywajag", "pos_5355", 95.4318f, 50.5943f)]
+        [InlineData("cit_Avusoxiwa", "org_Obe", "cou_IS", "reg_Ov", "pos_9535696", -31.3224f, 138.648f)]
+        [InlineData("cit_Ahyq", "org_Ypazem", "cou_OZY", "reg_Of Xuz", "pos_6288", -147.4524f, -136.1736f)]
+        [InlineData("cit_Ypib Taje ", "org_Urepeqysopejebege", "cou_UXU", "reg_Ofat", "pos_54155", -88.1194f, -48.5807f)]
+        [InlineData("cit_U Oxi Ef Ly", "org_Idi Ono Ebo", "cou_UM", "reg_Ape O", "pos_5644208", 105.9077f, -107.0158f)]
+        [InlineData("cit_Am", "org_Aliweho Ovyc Cis", "cou_UWO", "reg_Ofanit", "pos_730427", 22.2743f, 71.5619f)]
+        [InlineData("cit_Yxu Edeva O Ede", "org_Y Olycecygotebokivimadij", "cou_ECI", "reg_Ikex", "pos_27385", -137.0419f, -114.8293f)]
+        [InlineData("cit_Enehitij", "org_Ifuqy Ox Gydefef ", "cou_AK", "reg_Uharav", "pos_0410025", 59.4065f, 98.1167f)]
+        [InlineData("cit_Azatarofyriw", "org_Yfox Lugacopowuhuni Ubiros", "cou_YZU", "reg_Onyro", "pos_745342", -40.6437f, -12.5499f)]
+        [InlineData("cit_Otoqy", "org_Obyxylasakiqusediwyjezer", "cou_OZY", "reg_Eqatic", "pos_480759", -124.3576f, -140.3506f)]
+        [InlineData("cit_Ar Lujaz", "org_Oxu Omubu E Uja", "cou_AJ", "reg_Iwi", "pos_8933387", 154.1595f, -75.9228f)]
+        [InlineData("cit_Up", "org_Apake", "cou_AV", "reg_Am", "pos_238255", 65.2634f, -33.248f)]
+        [InlineData("cit_Idavy", "org_Ujuryqy Ihutipilaraw", "cou_IFY", "reg_A", "pos_9993", -0.8553f, -53.0781f)]
+        [InlineData("cit_Epoh Lymubutefa ", "org_Osuje Oh", "cou_YCU", "reg_Ud", "pos_1223553", -54.8739f, -36.1324f)]
+        [InlineData("cit_Y A Aq", "org_Ilezokyj Zedo U Uf Gosudy", "cou_YFO", "reg_Ahelec", "pos_03292", -34.4045f, -129.8112f)]
+        [InlineData("cit_Os", "org_E One Isivyvifybufezud", "cou_IN", "reg_Ajyf", "pos_45123", -125.8897f, -27.467f)]
+        [InlineData("cit_Yvekyfogu Utek", "org_Uwonus S Dazaco Aw Wumefux", "cou_EJ", "reg_U", "pos_169634", -4.7406f, -103.0773f)]
+        [InlineData("cit_O Os", "org_A A Oravas Hedegosin", "cou_EG", "reg_A Osu", "pos_5843", -48.7973f, 132.7865f)]
+        [InlineData("cit_Ir", "org_Ysaba Ebazicyfet Gura Osa", "cou_YTU", "reg_I", "pos_7049", -98.8755f, 37.0324f)]
+        [InlineData("cit_Yvym Sahiken", "org_E Ylyd ", "cou_YBY", "reg_U", "pos_0474", -131.1181f, 1.4555f)]
+        [InlineData("cit_Eh Babedid Ven", "org_Oxym", "cou_ERO", "reg_Ex", "pos_61003", 82.0487f, -67.9309f)]
+        [InlineData("cit_U Eqetad", "org_O O Ahu Izur", "cou_OW", "reg_Y Elyg", "pos_305802", -160.0226f, -97.8273f)]
+        [InlineData("cit_Asaninelihe Ab", "org_Uqaqabe", "cou_EJY", "reg_Et ", "pos_6980624", -116.4104f, 58.87f)]
+        [InlineData("cit_Ucotam", "org_Ytihogoxanebyzy Etabo", "cou_OW", "reg_Ozyli", "pos_4593571", -27.4081f, 90.1362f)]
+        [InlineData("cit_Yn", "org_I Azeraq Nyqat", "cou_AGU", "reg_Ec", "pos_9636", 67.1269f, 55.1645f)]
+        [InlineData("cit_Oq T", "org_Yhyla At L ", "cou_YXA", "reg_Yzev", "pos_67340", 55.256f, 0.0018f)]
+        [InlineData("cit_A Afetehyduby", "org_Ozygodawo", "cou_AV", "reg_Edibi", "pos_2136381", 113.0984f, 13.0784f)]
+        [InlineData("cit_Ux Ny Er My", "org_Eh Sy", "cou_YXA", "reg_Amin", "pos_1440155", 165.2065f, 94.3463f)]
+        [InlineData("cit_Ec Ge", "org_Eqim Qypulacykivub", "cou_UJ", "reg_Ir", "pos_668951", 146.2797f, 27.2371f)]
+        [InlineData("cit_O Eq M", "org_Igi Yqa Olaziroj", "cou_AT", "reg_I", "pos_119608", 77.4456f, 156.3739f)]
+        [InlineData("cit_Ileso Udico", "org_Idefexagum", "cou_EFY", "reg_Ory", "pos_3608196", -138.8808f, -5.4221f)]
+        [InlineData("cit_E Iwobytumewe Awaf", "org_Ehymif", "cou_ORI", "reg_Y Uk P", "pos_25456", -13.8255f, 131.8239f)]
+        [InlineData("cit_I ", "org_Apirybemej Gigyxe I", "cou_EJ", "reg_Acam", "pos_6156", 41.9985f, -102.6683f)]
+        [InlineData("cit_Ekexop Canov Gy", "org_Yhegutopoh", "cou_AF", "reg_In", "pos_7426", -51.9738f, -92.1037f)]
+        [InlineData("cit_Ugy Oq Zucahejydod", "org_A Ytewa U Ytiryvykapic", "cou_AJ", "reg_Ulin", "pos_0254004", -16.1241f, -176.7817f)]
+        [InlineData("cit_Ij", "org_Ipog M Gomydo Oku", "cou_ILA", "reg_Uty", "pos_2277180", -177.4071f, -59.6066f)]
+        [InlineData("cit_Eqobuxemypyp", "org_Apesyjugity O Igupur Ja", "cou_IS", "reg_Aqimov", "pos_0530", 27.8604f, 16.0567f)]
+        [InlineData("cit_Irusuby", "org_Udow Sitirebyheqe", "cou_YFO", "reg_I", "pos_435357", 147.1954f, -122.5615f)]
+        [InlineData("cit_Yvegelugojihykeca", "org_Icarynif Laxizet ", "cou_AV", "reg_Ypol", "pos_74220", -2.2773f, 15.9787f)]
+        [InlineData("cit_Axojodoji ", "org_Epebabojiz", "cou_IZ", "reg_Yve", "pos_2561832", -152.899f, -124.314f)]
+        [InlineData("cit_Obub", "org_Ulo Ivypegah Gam", "cou_IL", "reg_O ", "pos_5382", -77.9092f, 81.1826f)]
+        [InlineData("cit_Edogecasase O", "org_Omymicorajof", "cou_IT", "reg_Ewe", "pos_0249974", 81.5759f, 81.6668f)]
+        [InlineData("cit_Axaxa E Ule Ojywel", "org_Iqiq Risub Boriqa", "cou_YKY", "reg_Y", "pos_4619021", 164.8978f, -62.6438f)]
+        [InlineData("cit_Ecinugib F", "org_Uvo", "cou_OZ", "reg_Ebefuz", "pos_416344", 165.8482f, -61.4708f)]
+        [InlineData("cit_Oq", "org_Ekokepi O Abafogo Abuceja", "cou_YH", "reg_Ot Hy", "pos_4062", -160.2648f, -70.2022f)]
+        [InlineData("cit_Ec Zy Equj", "org_Amugeb Le", "cou_IKU", "reg_Uva ", "pos_875926", -55.781f, 72.3736f)]
+        [InlineData("cit_Yb Buh", "org_Ap Kejak Vu", "cou_ORI", "reg_O Or", "pos_785948", 129.976f, 178.9972f)]
+        [InlineData("cit_Yroh", "org_Ipecakexidy", "cou_YKA", "reg_Uvupos", "pos_214688", -115.8856f, -163.955f)]
+        [InlineData("cit_Ojifuxerirucyjaf", "org_Ewelu Ajyfirilag Zici", "cou_YS", "reg_A Y", "pos_5832", -15.524f, 115.8385f)]
+        [InlineData("cit_Yle", "org_Yvaleq", "cou_YFO", "reg_Ob", "pos_9706", -109.8679f, -76.3609f)]
+        [InlineData("cit_Ozy Yjofe Uhoxas", "org_Ovi Ifyhaqilija I", "cou_IB", "reg_Ifohu", "pos_7335536", -38.905f, -164.3822f)]
+        [InlineData("cit_Adoveso", "org_Yze A Agupen Dibukeryw", "cou_IZ", "reg_Yqu ", "pos_723410", -159.4408f, -170.1191f)]
+        [InlineData("cit_I ", "org_Ozosybeb", "cou_OX", "reg_Yqu ", "pos_7912592", 32.1611f, -172.2823f)]
+        [InlineData("cit_Uw Mazapov Ku Uwan", "org_Uxixywosi Y", "cou_UJO", "reg_Up", "pos_699901", 11.2934f, 26.1544f)]
+        [InlineData("cit_Omeki", "org_Ovyz Re I Unoc", "cou_OM", "reg_Y ", "pos_882966", -132.8327f, 80.5904f)]
+        [InlineData("cit_O ", "org_Ojo Iwezyqy", "cou_OW", "reg_Y", "pos_543759", -3.4209f, -72.9226f)]
+        [InlineData("cit_Inalo Orenymum", "org_Ugyqydav Ryd Kit", "cou_YNO", "reg_Iju ", "pos_9224496", -41.697f, 71.3895f)]
+        [InlineData("cit_Ebeg", "org_I Iz", "cou_OH", "reg_Ah Quz", "pos_1083257", 67.5341f, 23.1722f)]
+        [InlineData("cit_Ityxaleji", "org_Iwywuhacabi Yxec Cah", "cou_UM", "reg_Yjuhyh", "pos_3975", -168.3891f, -6.9746f)]
+        [InlineData("cit_Or", "org_Aj Lebun Tegulipib Wic", "cou_YKY", "reg_Ol", "pos_494372", -107.5662f, -11.8088f)]
+        [InlineData("cit_Umeby I E", "org_Op Hybomiqez", "cou_YCU", "reg_Or", "pos_6685466", -140.5686f, -45.2281f)]
+        [InlineData("cit_Yjucaxil ", "org_Omur Ra Abixat", "cou_UB", "reg_Usove", "pos_862370", 121.0963f, -138.9992f)]
+        [InlineData("cit_Iw", "org_Yxubalyc Deh", "cou_USA", "reg_Iwut", "pos_403382", -59.0955f, -64.7005f)]
+        [InlineData("cit_Ulyzarobo Ycet", "org_Odydebyzadakejab Cegocad", "cou_IME", "reg_Ovi", "pos_01744", 82.1268f, -95.1874f)]
+        [InlineData("cit_Ihisyl M", "org_Upupodapyv ", "cou_OVO", "reg_A Ole", "pos_828939", -142.5576f, 50.4841f)]
+        [InlineData("cit_Ete Odabyfoga", "org_Otamajovur Dasarebic", "cou_IFY", "reg_E", "pos_91930", -100.2131f, -69.0439f)]
+        [InlineData("cit_Ytykuro Ykehesyxo", "org_Ubigexunyhe E Orogu", "cou_YP", "reg_Uj", "pos_18274", -86.1999f, 109.8789f)]
+        [InlineData("cit_Adyvigunyhog", "org_Ew Vy Upuwaponoga", "cou_EG", "reg_Imec", "pos_658070", 152.1438f, 32.8215f)]
+        [InlineData("cit_Unog Qiq ", "org_Oguvyveq ", "cou_YCU", "reg_Ofara", "pos_1914", 100.1476f, -34.675f)]
+        [InlineData("cit_Ubyqipicaca", "org_Ovegeqeqepinety Abo Ezako", "cou_ERO", "reg_Ajeb ", "pos_7123", -156.1413f, 85.858f)]
+        [InlineData("cit_Epahizahy", "org_Ehizybusyj Ve A Evel Job X", "cou_ED", "reg_U", "pos_4016306", -173.0696f, 46.7699f)]
+        [InlineData("cit_O A Ymiqil", "org_Enic", "cou_YKA", "reg_Yzi", "pos_7799614", 99.2766f, -93.327f)]
+        [InlineData("cit_Ijefu Isacivy Ido", "org_Yjopicuqahop N", "cou_EJ", "reg_Ocinu", "pos_987796", -92.3892f, 69.7896f)]
+        [InlineData("cit_Oxix ", "org_Uciheh Zaqateruvisapi", "cou_ERO", "reg_Uve", "pos_5079785", -96.0069f, -74.9317f)]
+        [InlineData("cit_Evyhuvep Gu", "org_Yjery O Efoninatir", "cou_YQE", "reg_U", "pos_776559", 103.4733f, -115.4478f)]
+        [InlineData("cit_Inym H Kiberijyj", "org_Eq Gexaq L", "cou_ADO", "reg_Age Er", "pos_97364", -168.5181f, 78.9864f)]
+        [InlineData("cit_Ofod", "org_Yxynasewysev Hec Ry", "cou_ERE", "reg_Omeka", "pos_4400", -68.9233f, 162.2549f)]
+        [InlineData("cit_Okawefoviguwi", "org_An Pypuw Jylof", "cou_URO", "reg_Ak ", "pos_707064", -40.9126f, -170.751f)]
+        [InlineData("cit_Omebuporasuger", "org_Ejoriwagoraxeny Or Gytadi ", "cou_ELA", "reg_Igin", "pos_9640344", -160.5897f, 77.0572f)]
+        public void FindLocationsByCity_OrdinalSearch_ReturnsExpected(
+            string city, 
+            string org,
+            string country,
+            string region,
+            string postal,
+            float latitude,
+            float longitude)
         {
-            var stubLogger = Mock.Of<ILogger<SearchEngineService>>();
-            var searchIndex = DbReaderHelper.CreateSearchIndex("Data/geobase.dat");
+            // Arrange
 
-            SearchEngine = new SearchEngineService(
-                searchIndex,
-                stubLogger);
+            // Act
+            var locations = _searchEngineService.FindLocationsByCity(city);
+
+            // Assert
+            Assert.All(locations, location => location.City.Equals(city));
+            Assert.Contains(locations, location =>           
+                location.City.Equals(city) &&
+                location.Organization.Equals(org) &&
+                location.Region.Equals(region) &&
+                location.Postal.Equals(postal) &&
+                location.Latitude.Equals(latitude) &&
+                location.Longitude.Equals(longitude) &&
+                location.Country.Equals(country)
+            );
+        }
+
+        [Fact]
+        public void FindLocationsByCity_CheckResultsCount_ReturnsExpected()
+        {
+            // Arrange
+            const string city = "cit_A ";
+            const int count = 160;
+
+            // Act
+            var locations = _searchEngineService.FindLocationsByCity(city);
+
+            // Assert
+            Assert.All(locations, location => location.City.Equals(city));
+            Assert.Equal(count, locations.Count());
         }
     }
 }

@@ -19,6 +19,6 @@ namespace MetaQuotes.LocationFinder.Core.Interfaces
         /// </summary>
         /// <param name="city">Название города.</param>
         /// <returns>Массив локаций. См. <see cref="Location"/>.</returns>
-        Location[] FindLocationsByCity(string city);
+        IEnumerable<Location> FindLocationsByCity(string city);
     }
 }

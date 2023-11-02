@@ -19,12 +19,22 @@
         }
 
         /// <summary>
+        /// Адреса локаций в исходном массиве байтов (файле) относительно заданного смещения,
+        /// упорядоченные по названиям городов.
+        /// </summary>
+        public int[] LocationAddresses
+        {
+            get;
+        }
+
+        /// <summary>
         /// Создать.
         /// </summary>
         /// <param name="recordsCount">Количество записей.</param>
         public CitySearchIndex(int recordsCount)
         {
             Cities = new ReadOnlyMemory<byte>[recordsCount];
+            LocationAddresses = new int[recordsCount];
         }
     }
 }
