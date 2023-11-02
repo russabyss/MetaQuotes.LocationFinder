@@ -243,13 +243,19 @@ namespace MetaQuotes.LocationFinder.Tests
         }
 
         [Theory]
-        [InlineData("")]
         [InlineData("256.0.0.0")]
         [InlineData("1.2.3.4.5.6")]
         public void FindLocationByIp_BadValue_ThrowsExpected(string ip)
         {
             // Assert
             Assert.Throws<FormatException>(() => { _searchEngineService.FindLocationByIp(ip); });
+        }
+
+        [Fact]
+        public void FindLocationByIp_NullValue_ThrowsExpected()
+        {
+            // Assert
+            Assert.Throws<ArgumentNullException>(() => { _searchEngineService.FindLocationByIp(string.Empty); });
         }
 
         [Theory]
