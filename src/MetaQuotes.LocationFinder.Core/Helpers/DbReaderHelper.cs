@@ -12,20 +12,31 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
         private const byte EscapeSpaceSymbolCode = 23;
 
         /// <summary>
-        /// Загрузить базу данных из файла.
-        /// Парсит данные и получает полную структуру данных.
+        /// Прочитать файл с диска.
         /// </summary>
         /// <param name="filePath">Путь к файлу.</param>
-        /// <returns>Модель базы данных <see cref="DataBase"/>.</returns>
+        /// <returns>Байтовое представление файла.</returns>
         /// <exception cref="FileNotFoundException">Проверяет наличие файла с базой данных по указанному пути.</exception>
-        public static DataBase LoadFromFile(string filePath = "Data/geobase.dat")
+        public static byte[] ReadFile(string filePath)
         {
             if (!File.Exists(filePath))
             {
                 throw new FileNotFoundException($"DB file not found in '{filePath}'.");
             }
 
-            var fileBuffer = File.ReadAllBytes(filePath);
+            return File.ReadAllBytes(filePath);
+        }
+
+        /// <summary>
+        /// Загрузить базу данных из файла.
+        /// Парсит данные и получает полную структуру данных.
+        /// </summary>
+        /// <param name="filePath">Путь к файлу.</param>
+        /// <returns>Модель базы данных <see cref="DataBase"/>.</returns>
+        /// <exception cref="FileNotFoundException">Проверяет наличие файла с базой данных по указанному пути.</exception>
+        public static DataBase LoadFromFile(string filePath)
+        {
+            var fileBuffer = ReadFile(filePath);
             
             var header = GetHeader(fileBuffer);
             
@@ -43,6 +54,41 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
           
             return new DataBase(header, ipIntervals, locations);
         }
+
+        /// <summary>
+        /// Создать поисковый индекс на основе исходного файла БД.
+        /// </summary>
+        /// <param name="filePath">Путь к файлу.</param>
+        /// <returns>Поисковый индекс. См. <see cref="SearchIndex"/>.</returns>
+        public static SearchIndex CreateSearchIndex(string filePath)
+        {
+            var fileBuffer = ReadFile(filePath).AsMemory();
+            var header = GetHeader(fileBuffer.Span);
+
+            var ipIntervals = fileBuffer.Span.Slice(
+                (int)header.OffsetRanges, 
+                header.Records * DbConstants.IpIntervalLength);
+
+            var ipSearchIndex = GetIpSearchIndex(
+                ipIntervals,
+                header.Records);
+
+            var locations = fileBuffer.Slice(
+                (int)header.OffsetLocations, 
+                DbConstants.LocationLength * header.Records);
+            
+            var citiesList = fileBuffer.Span.Slice(
+                (int)header.OffsetCities,
+                DbConstants.LocationsListItem * header.Records);
+
+            var citySearchIndex = GetCitySearchIndex(
+                locations, 
+                citiesList, 
+                header.Records);
+
+            return new SearchIndex(fileBuffer, citySearchIndex, ipSearchIndex, header);
+        }
+
 
         /// <summary>
         /// Распарсить заголовок базы данных.

@@ -101,6 +101,22 @@ namespace MetaQuotes.LocationFinder.Tests
             // Assert
             Assert.Equal(header.Records, citySearchIndex.Cities.Length);
             // TODO: проверить, массив Cities - упорядочен.
+        }     
+        
+        [Fact]
+        public void CreateSearchIndex_ReadFileFromDisk_ReturnsExpected()
+        {
+            // Arrange
+            
+
+            // Act
+            var searchIndex = DbReaderHelper.CreateSearchIndex("Data/geobase.dat");
+
+            // Assert
+            Assert.Equal(searchIndex.Header.Records, searchIndex.CitySearchIndex.Cities.Length);
+            Assert.Equal(searchIndex.Header.Records, searchIndex.IpSearchIndex.IpsTo.Length);
+            Assert.Equal(searchIndex.Header.Records, searchIndex.IpSearchIndex.IpsFrom.Length);
+            Assert.Equal(searchIndex.Header.Records, searchIndex.IpSearchIndex.LocationIndexes.Length);
         }
     }
 }
