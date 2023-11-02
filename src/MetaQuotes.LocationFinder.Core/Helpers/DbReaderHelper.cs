@@ -1,4 +1,6 @@
 ﻿using MetaQuotes.LocationFinder.Contracts;
+using MetaQuotes.LocationFinder.Core.Extensions;
+using MetaQuotes.LocationFinder.Core.Models;
 using System;
 using System.Text;
 
@@ -123,7 +125,7 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
         /// <summary>
         /// Распарсить локацию.
         /// </summary>
-        /// <param name="locationsSpan">Исходный массив байтов.</param>
+        /// <param name="locationsSpan">Исходный набор байтов.</param>
         /// <returns>Локация. См. <see cref="Location"/>.</returns>
         internal static Location GetLocation(ReadOnlySpan<byte> buffer)
         {
@@ -146,6 +148,34 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
                 latitude,
                 longitude
             );
+        }
+
+        /// <summary>
+        /// Распарсить исходный набор байтов в поисковый индекс
+        /// по IP-адресам.
+        /// </summary>
+        /// <param name="intervalsBuffer">Исходный набор байтов.</param>
+        /// <param name="recordsCount">Количество записей.</param>
+        /// <returns>Поисковый индекс по IP-адресам. См. <see cref="IpSearchIndex"/>.</returns>
+        internal static IpSearchIndex GetIpSearchIndex(
+            ReadOnlySpan<byte> intervalsBuffer, 
+            int recordsCount)
+        {
+            var ipIndex = new IpSearchIndex(recordsCount);
+            var currentIndex = 0;
+            for (var i = 0; i < intervalsBuffer.Length; i += 12)
+            {
+                var currentPosition = i;
+                var ipFrom = BitConverter.ToUInt32(intervalsBuffer.Slice(currentPosition, DbConstants.UintLength));
+                var ipTo = BitConverter.ToUInt32(intervalsBuffer.Slice(currentPosition += DbConstants.UintLength, DbConstants.UintLength));
+                var locationIndex = BitConverter.ToUInt32(intervalsBuffer.Slice(currentPosition += DbConstants.UintLength, DbConstants.UintLength));
+
+                ipIndex.Add(ipFrom, ipTo, locationIndex, currentIndex);
+
+                currentIndex++;
+            }
+
+            return ipIndex;
         }
     }
 }

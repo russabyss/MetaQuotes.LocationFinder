@@ -60,6 +60,27 @@ namespace MetaQuotes.LocationFinder.Tests
             // Assert
             Assert.Equal(header.Records, locations.Length);
             // TODO: проверить, что все city начинаются с cit, etc.
+        }  
+        
+        [Fact]
+        public void GetIpIndex_ReadFileFromDisk_ReturnsExpected()
+        {
+            // Arrange
+            var buffer = File.ReadAllBytes("Data/geobase.dat");
+            var header = DbReaderHelper.GetHeader(buffer);
+
+            // Act
+            var ipSearchIndex = DbReaderHelper.GetIpSearchIndex(
+                buffer
+                    .AsSpan()
+                    .Slice((int)header.OffsetRanges, header.Records * DbConstants.IpIntervalLength), // Для упрощения - делаем прямой каст uint -> int, т.к. в текущем файле точно все будет ок.
+                header.Records);
+
+            // Assert
+            Assert.Equal(header.Records, ipSearchIndex.IpsFrom.Length);
+            Assert.Equal(header.Records, ipSearchIndex.IpsTo.Length);
+            Assert.Equal(header.Records, ipSearchIndex.LocationIndexes.Length);
+            // TODO: проверить, что все IpTo <= IpFrom на одинаковых индексах массива.
         }
     }
 }
