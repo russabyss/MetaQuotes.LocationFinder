@@ -1,6 +1,7 @@
-﻿using MetaQuotes.LocationFinder.Core.Helpers;
-using MetaQuotes.LocationFinder.Core.Services;
+﻿using MetaQuotes.LocationFinder.Core.Services;
+using MetaQuotes.LocationFinder.Core.Settings;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace MetaQuotes.LocationFinder.Tests
@@ -11,12 +12,21 @@ namespace MetaQuotes.LocationFinder.Tests
 
         public SearchEngineFixture()
         {
-            var stubLogger = Mock.Of<ILogger<SearchEngineService>>();
-            var searchIndex = DbReaderHelper.CreateSearchIndex("Data/geobase.dat");
+            var stubLoggerEngine = Mock.Of<ILogger<SearchEngineService>>();
+            var stubLoggerFactory = Mock.Of<ILogger<SearchIndexFactory>>();
+            var options = new OptionsWrapper<DbSettings>(new DbSettings
+            {
+                FilePath = "Data/geobase.dat"
+            });
+            var searchIndexFactory = new SearchIndexFactory(
+                options, 
+                stubLoggerFactory);
 
             SearchEngine = new SearchEngineService(
-                searchIndex,
-                stubLogger);
+                searchIndexFactory,
+                stubLoggerEngine);
+
+            SearchEngine.Initialize();
         }
     }
 

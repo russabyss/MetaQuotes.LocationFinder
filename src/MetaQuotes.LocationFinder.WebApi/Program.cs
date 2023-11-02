@@ -16,6 +16,8 @@ internal class Program
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        // TODO: метрики, трассировка, валидаторы
         
         var app = builder.Build();
 
