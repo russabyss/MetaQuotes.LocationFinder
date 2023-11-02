@@ -18,6 +18,7 @@ namespace MetaQuotes.LocationFinder.Benchmarks
 
         /// <summary>
         /// Чтение файла с диска с парсингом данных.
+        /// (медленно).
         /// </summary>
         [Benchmark]
         public void FileReadWithParsing()

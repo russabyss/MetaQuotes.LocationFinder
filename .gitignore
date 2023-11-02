@@ -131,5 +131,4 @@ $RECYCLE.BIN/
 .DS_Store
 
 _NCrunch*
-/.vs/MetaQuotes/FileContentIndex
-/.vs/MetaQuotes
+.vs
