@@ -17,6 +17,10 @@ namespace MetaQuotes.LocationFinder.Core.Models
         /// </summary>
         public ReadOnlyMemory<byte> OriginBytes { get; }
 
+        public ReadOnlySpan<byte> LocationsBytes => OriginBytes.Span.Slice(
+            (int)Header.OffsetLocations, 
+            Header.Records * DbConstants.LocationLength);
+
         /// <summary>
         /// Поисковый индекс по названиям городов.
         /// </summary>

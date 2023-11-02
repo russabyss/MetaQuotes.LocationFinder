@@ -171,7 +171,7 @@ namespace MetaQuotes.LocationFinder.Core.Helpers
         /// <summary>
         /// Распарсить локацию.
         /// </summary>
-        /// <param name="locationsSpan">Исходный набор байтов.</param>
+        /// <param name="locationsSpan">Исходный набор байтов - только байты локации, без лишней информации.</param>
         /// <returns>Локация. См. <see cref="Location"/>.</returns>
         internal static Location GetLocation(ReadOnlySpan<byte> buffer)
         {
