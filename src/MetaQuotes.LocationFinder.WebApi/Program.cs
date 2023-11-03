@@ -13,6 +13,15 @@ internal class Program
             .AddSingleton<SearchIndexFactory>()
             .AddSingleton<ISearchEngine, SearchEngineService>();
 
+        // Для отладки
+        builder.Services.AddCors(options => options.AddPolicy("ApiCorsPolicy", builder =>
+        {
+            builder
+                .WithOrigins("*")
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        }));
+
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -32,6 +41,8 @@ internal class Program
             app.UseSwaggerUI();
         }
 
+        app.UseCors("ApiCorsPolicy");
+        
         app.UseHttpsRedirection();
         app.UseAuthorization();
         app.MapControllers();
