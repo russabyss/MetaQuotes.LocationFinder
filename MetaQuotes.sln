@@ -9,22 +9,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{996D222F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logic", "Logic", "{BEAE7F6E-55F3-4E5F-961F-63572C678430}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaQuotes.LocationFinder.Core", "src\MetaQuotes.LocationFinder.Core\MetaQuotes.LocationFinder.Core.csproj", "{D82F9650-DDE1-452A-BD26-161D9D80FB88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaQuotes.LocationFinder.Core", "src\MetaQuotes.LocationFinder.Core\MetaQuotes.LocationFinder.Core.csproj", "{D82F9650-DDE1-452A-BD26-161D9D80FB88}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaQuotes.LocationFinder.WebApi", "src\MetaQuotes.LocationFinder.WebApi\MetaQuotes.LocationFinder.WebApi.csproj", "{BD648D3C-0478-404F-95E7-3FE48E02647D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaQuotes.LocationFinder.WebApi", "src\MetaQuotes.LocationFinder.WebApi\MetaQuotes.LocationFinder.WebApi.csproj", "{BD648D3C-0478-404F-95E7-3FE48E02647D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaQuotes.LocationFinder.Tests", "tests\MetaQuotes.LocationFinder.Tests\MetaQuotes.LocationFinder.Tests.csproj", "{5E8DDFF1-A5FD-4490-B9A3-0699B2365E63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaQuotes.LocationFinder.Tests", "tests\MetaQuotes.LocationFinder.Tests\MetaQuotes.LocationFinder.Tests.csproj", "{5E8DDFF1-A5FD-4490-B9A3-0699B2365E63}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Contracts", "Contracts", "{B41412DE-9493-441A-8D7B-EA54FDD50860}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaQuotes.LocationFinder.Contracts", "src\MetaQuotes.LocationFinder.Contracts\MetaQuotes.LocationFinder.Contracts.csproj", "{18F90390-86FA-4E4B-811A-64B1341C6645}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaQuotes.LocationFinder.Contracts", "src\MetaQuotes.LocationFinder.Contracts\MetaQuotes.LocationFinder.Contracts.csproj", "{18F90390-86FA-4E4B-811A-64B1341C6645}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{68BDC76B-FDEC-4529-B687-F772DCA8DD62}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaQuotes.LocationFinder.Benchmarks", "tests\MetaQuotes.LocationFinder.Benchmarks\MetaQuotes.LocationFinder.Benchmarks.csproj", "{ACFFCE26-1489-442A-8C39-059A65BA182B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaQuotes.LocationFinder.Benchmarks", "tests\MetaQuotes.LocationFinder.Benchmarks\MetaQuotes.LocationFinder.Benchmarks.csproj", "{ACFFCE26-1489-442A-8C39-059A65BA182B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{7E20550A-5943-4215-A0D5-A584FD3591CC}"
+	ProjectSection(SolutionItems) = preProject
+		src\MetaQuotes.LocationFinder.WebClient\index.html = src\MetaQuotes.LocationFinder.WebClient\index.html
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

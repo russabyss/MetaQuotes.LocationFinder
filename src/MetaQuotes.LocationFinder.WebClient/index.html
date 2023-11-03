@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SPA Example</title>
+  <style>
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .menu {
+      flex: 1;
+      background-color: #ddd;
+      padding: 20px;
+    }
+    .content {
+      flex: 3;
+      background-color: #eee;
+      padding: 20px;
+    }
+    .form {
+      margin-bottom: 10px;
+    }
+	.response-container {
+	  height: 300px;
+      overflow-y: auto;
+	}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="menu">
+      <h2>Menu</h2>
+      <button onclick="showIpSearch()">Search by IP Address</button>
+      <button onclick="showCitySearch()">Search by City Name</button>
+    </div>
+    <div class="content">
+      <h2>Content</h2>
+      <div id="ipSearch" style="display: none;">
+        <h3>Search by IP Address</h3>
+        <div class="form">
+          <input type="text" id="ipInput" placeholder="Enter IP Address">
+          <button onclick="searchByIP()">Search</button>
+        </div>
+        <div id="ipResults"></div>
+        <pre id="ipJsonResult" class="response-container"></pre>
+      </div>
+      <div id="citySearch" style="display: none;">
+        <h3>Search by City Name</h3>
+        <div class="form">
+          <input type="text" id="cityInput" placeholder="Enter City Name">
+          <button onclick="searchByCity()">Search</button>
+        </div>
+        <div id="cityResults"></div>
+        <pre id="cityJsonResult" class="response-container"></pre>
+      </div>
+    </div>
+  </div>
+  <script>
+
+    function showIpSearch() {
+      document.getElementById("ipSearch").style.display = "block";
+      document.getElementById("citySearch").style.display = "none";
+    }
+    
+    function showCitySearch() {
+      document.getElementById("ipSearch").style.display = "none";
+      document.getElementById("citySearch").style.display = "block";
+    }
+    
+    function searchByIP() {
+      var ip = document.getElementById("ipInput").value;
+      var url = "/ip/location?ip=" + ip;
+      
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          var resultsDiv = document.getElementById("ipResults");
+          var jsonResult = document.getElementById("ipJsonResult");
+          resultsDiv.innerHTML = "Search Results:";
+          jsonResult.innerHTML = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
+    
+    function searchByCity() {
+      var city = document.getElementById("cityInput").value;
+      var url = "/city/locations?city=" + city;
+      
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          var resultsDiv = document.getElementById("cityResults");
+          var jsonResult = document.getElementById("cityJsonResult");
+          resultsDiv.innerHTML = "Search Results:";
+          jsonResult.innerHTML = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
+  </script>
+</body>
+</html>
