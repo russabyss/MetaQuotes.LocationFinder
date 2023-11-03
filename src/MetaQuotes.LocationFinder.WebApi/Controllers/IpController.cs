@@ -12,11 +12,11 @@ namespace MetaQuotes.LocationFinder.WebApi.Controllers
         private readonly ILogger<IpController> _logger;
 
         /// <summary>
-        /// Создать.
+        /// РЎРѕР·РґР°С‚СЊ.
         /// </summary>
-        /// <param name="searchEngine">Поисковый движок.</param>
-        /// <param name="logger">Логер.</param>
-        /// <exception cref="ArgumentNullException">Проверка зависимостей на существование.</exception>
+        /// <param name="searchEngine">РџРѕРёСЃРєРѕРІС‹Р№ РґРІРёР¶РѕРє.</param>
+        /// <param name="logger">Р›РѕРіРµСЂ.</param>
+        /// <exception cref="ArgumentNullException">РџСЂРѕРІРµСЂРєР° Р·Р°РІРёСЃРёРјРѕСЃС‚РµР№ РЅР° СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ.</exception>
         public IpController(
             ISearchEngine searchEngine,
             ILogger<IpController> logger)
@@ -26,10 +26,10 @@ namespace MetaQuotes.LocationFinder.WebApi.Controllers
         }
 
         /// <summary>
-        /// Получить локацию по IP.
+        /// РџРѕР»СѓС‡РёС‚СЊ Р»РѕРєР°С†РёСЋ РїРѕ IP.
         /// </summary>
-        /// <param name="ip">IP-адрес.</param>
-        /// <returns>Локация. См. <see cref="Location"/>.</returns>
+        /// <param name="ip">IP-Р°РґСЂРµСЃ.</param>
+        /// <returns>Р›РѕРєР°С†РёСЏ. РЎРј. <see cref="Location"/>.</returns>
         [HttpGet, Route("location")]
         public Location Get([FromQuery] string ip)
         {

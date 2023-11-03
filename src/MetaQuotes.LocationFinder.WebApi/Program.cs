@@ -13,7 +13,7 @@ internal class Program
             .AddSingleton<SearchIndexFactory>()
             .AddSingleton<ISearchEngine, SearchEngineService>();
 
-        // Для отладки
+        // Р”Р»СЏ РѕС‚Р»Р°РґРєРё
         builder.Services.AddCors(options => options.AddPolicy("ApiCorsPolicy", builder =>
         {
             builder
@@ -26,12 +26,12 @@ internal class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        // TODO: метрики, трассировка, валидаторы
+        // TODO: РјРµС‚СЂРёРєРё, С‚СЂР°СЃСЃРёСЂРѕРІРєР°, РІР°Р»РёРґР°С‚РѕСЂС‹
         
         var app = builder.Build();
 
-        // Запускаем инициализацию не при первом вызове,
-        // а до старта приложения.
+        // Р—Р°РїСѓСЃРєР°РµРј РёРЅРёС†РёР°Р»РёР·Р°С†РёСЋ РЅРµ РїСЂРё РїРµСЂРІРѕРј РІС‹Р·РѕРІРµ,
+        // Р° РґРѕ СЃС‚Р°СЂС‚Р° РїСЂРёР»РѕР¶РµРЅРёСЏ.
         var engine = app.Services.GetRequiredService<ISearchEngine>();
         engine.Initialize();
 
